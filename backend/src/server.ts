@@ -1,3 +1,4 @@
+import 'dotenv/config'; // 加载 .env 文件
 import app from './app';
 
 const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 3001;
