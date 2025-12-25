@@ -97,19 +97,44 @@ FRONTEND_URL=http://your-server-ip
 
 ### 4. 构建和启动
 
-#### 前端构建
+#### 前端构建（重要：解决依赖问题）
+
+如果遇到 rollup 依赖错误，按以下步骤操作：
 
 ```bash
-cd /opt/temple-management
-npm install
+cd /opt/manageSys
+
+# 1. 清理旧的依赖
+rm -rf node_modules package-lock.json
+
+# 2. 重新安装依赖（推荐使用 --legacy-peer-deps）
+npm install --legacy-peer-deps
+
+# 如果还有问题，尝试强制安装
+# npm install --force
+
+# 3. 构建前端
 npm run build
 # 构建产物在 build/ 目录
+```
+
+**注意**: 在 Linux 服务器上，rollup 的可选依赖可能需要特殊处理。如果上述方法不行，可以尝试：
+
+```bash
+# 方法2: 使用 yarn 代替 npm
+npm install -g yarn
+yarn install
+yarn build
+
+# 方法3: 明确安装 rollup 平台依赖
+npm install @rollup/rollup-linux-x64-gnu --save-optional
+npm run build
 ```
 
 #### 后端构建和启动
 
 ```bash
-cd /opt/temple-management/backend
+cd /opt/manageSys/backend
 npm install
 npm run build
 
@@ -133,7 +158,7 @@ server {
 
     # 前端静态文件
     location / {
-        root /opt/temple-management/build;
+        root /opt/manageSys/build;
         try_files $uri $uri/ /index.html;
         index index.html;
     }
@@ -245,6 +270,49 @@ JWT_EXPIRES_IN=7d
 FRONTEND_URL=http://your-server-ip
 ```
 
+## 常见问题排查
+
+### 问题1: Rollup 依赖错误
+
+**错误信息**: `Cannot find module @rollup/rollup-linux-x64-gnu`
+
+**解决方案**:
+```bash
+# 方法1: 清理并重新安装
+rm -rf node_modules package-lock.json
+npm install --legacy-peer-deps
+npm run build
+
+# 方法2: 使用 yarn
+npm install -g yarn
+yarn install
+yarn build
+
+# 方法3: 明确安装平台依赖
+npm install @rollup/rollup-linux-x64-gnu --save-optional
+npm run build
+```
+
+### 问题2: 端口被占用
+
+```bash
+# 检查端口占用
+netstat -tulpn | grep 3001
+# 或
+lsof -i :3001
+
+# 杀死占用进程
+kill -9 <PID>
+```
+
+### 问题3: 权限问题
+
+```bash
+# 确保目录权限正确
+sudo chown -R $USER:$USER /opt/manageSys
+chmod -R 755 /opt/manageSys
+```
+
 ## 注意事项
 
 1. **数据库备份**: 定期备份 `backend/database/temple.db`
@@ -267,4 +335,3 @@ FRONTEND_URL=http://your-server-ip
 1. 删除或重命名 `.env.production` 和 `backend/.env`
 2. 代码会自动使用默认值（`localhost:3001`）
 3. 正常启动开发服务器即可
-

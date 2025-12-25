@@ -1,6 +1,6 @@
 import app from './app';
 
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 3001;
 const HOST = process.env.HOST || 'localhost'; // 开发环境默认 localhost，生产环境设置为 0.0.0.0
 
 app.listen(PORT, HOST, () => {
