@@ -7,8 +7,15 @@ import regulationRoutes from './routes/regulation.routes';
 
 const app = express();
 
+// CORS配置 - 支持环境变量，开发环境允许所有来源，生产环境应指定具体域名
+const corsOptions = {
+  origin: process.env.FRONTEND_URL || process.env.CORS_ORIGIN || '*', // 开发环境默认允许所有来源
+  credentials: true,
+  optionsSuccessStatus: 200
+};
+
 // 中间件
-app.use(cors());
+app.use(cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
